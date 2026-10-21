@@ -6,7 +6,8 @@ A shared, fully typed Vue component library for the homelab projects. It vendors
 [shadcn-vue](https://www.shadcn-vue.com) component unchanged and publishes them as one
 npm package, so projects stop running `shadcn-vue add` one component at a time.
 
-Replaces nothing: `lumuix` stays as it is, and anything depending on it keeps working.
+Succeeds `lumuix`, which stays untouched so anything depending on it keeps working. Once
+nothing depends on it any more, `lumuix` gets archived.
 
 ## Consumers
 
