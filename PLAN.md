@@ -58,18 +58,20 @@ import { Card, CardContent, CardHeader } from 'chassis-ui/card'
 | **One subpath export per component** | Mirrors shadcn's paths: `@/components/ui/button` becomes `chassis-ui/button`. Migration is a find-and-replace. Also tree-shakes cleanly |
 | **Generated `exports` map** | 50+ entries nobody should maintain by hand |
 | **Theme through CSS variables** | One package, each project keeps its own look by overriding tokens |
-| **Peer deps: `vue`, `tailwindcss`. Deps: `reka-ui`, `class-variance-authority`, `tailwind-merge`, `clsx`, `@vueuse/core`, `@lucide/vue`** | Every project lands on the same versions of the plumbing; the framework stays the project's choice |
+| **Peer deps: `vue`, `tailwindcss`. Deps: `reka-ui`, `cn`, `class-variance-authority`, `@vueuse/core`, `@lucide/vue`, `@internationalized/date`, `tw-animate-css`** | Every project lands on the same versions of the plumbing; the framework stays the project's choice. `cn` is shadcn's replacement for `clsx` + `tailwind-merge`. `tw-animate-css` is imported by `style.css`, so it must resolve from inside the package |
+| **Heavy, component-specific deps are optional peers** | form (`vee-validate`, `@vee-validate/zod`, `zod`), carousel (`embla-carousel*`), sonner, input-otp, code-block (`shiki`), chart (`@unovis/*`). A project only installs what it uses, so a `Button` never drags in a charting library. Also devDeps here so the library builds |
+| **TypeScript 6, not 7** | TS 7 (native) has no JS compiler API, which `vue-tsc` and `vite-plugin-dts` need. Revisit when the Vue tooling supports it |
 | **Public npm, unscoped `chassis-ui`** | No auth tokens in every consumer, CI and Coolify build. Name confirmed free 2026-10-21 |
 | **Changesets for releases** | Projects pin a version and upgrade deliberately; one bad change can't break every app at once |
 | **pnpm** | Matches wolfpack and calorie-tracker |
-| **Style `reka-nova`, base colour `neutral`** | Matches the dashboard, so the pilot migration changes nothing visually |
+| **Style `reka-nova`, base colour `neutral`, font Inter** | Matches the dashboard, so the pilot migration changes nothing visually. Font is a token (`--font-sans`), so projects can override it |
 
 ## Phases
 
 | # | What | Done when |
 |---|---|---|
-| 1 | Scaffold: pnpm, Vite library mode, `shadcn-vue init` (dashboard's style), `add --all`, `exports.ts` | `pnpm build` produces a typed `dist/` with one entry per component |
-| 2 | `style.css`, playground rendering every component | Playground looks right in light and dark |
+| 1 | Scaffold: pnpm, Vite library mode, `shadcn-vue init` (dashboard's style), `add --all`, `exports.ts` | `pnpm build` produces a typed `dist/` with one entry per component. **Done 2026-10-24** (68 components + `utils`) |
+| 2 | `style.css`, playground rendering every component | Playground looks right in light and dark. `style.css` currently imports `tailwindcss` itself and pulls Inter from Google Fonts: strip both so the consumer owns them |
 | 3 | Changesets, GitHub Actions (typecheck, build, publish on release), publish `0.1.0` | `pnpm add chassis-ui` works in a fresh Vite app |
 | 4 | Migrate homelab-dashboard | Its `components/ui` is gone and the dashboard renders identically |
 | 5 | wolfpack starts on it; calorie-tracker adopts it gradually | |
