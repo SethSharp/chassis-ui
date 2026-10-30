@@ -42,8 +42,7 @@ import { Card, CardContent, CardHeader } from 'chassis-ui/card'
 ```css
 /* style.css */
 @import 'tailwindcss';
-@import 'chassis-ui/style.css';
-@source '../node_modules/chassis-ui/dist';
+@import 'chassis-ui/style.css'; /* carries its own @source, no extra line needed */
 
 :root { --primary: oklch(...); } /* override any token per project */
 ```
@@ -71,7 +70,7 @@ import { Card, CardContent, CardHeader } from 'chassis-ui/card'
 | # | What | Done when |
 |---|---|---|
 | 1 | Scaffold: pnpm, Vite library mode, `shadcn-vue init` (dashboard's style), `add --all`, `exports.ts` | `pnpm build` produces a typed `dist/` with one entry per component. **Done 2026-10-24** (68 components + `utils`) |
-| 2 | `style.css`, playground rendering every component | Playground looks right in light and dark. `style.css` currently imports `tailwindcss` itself and pulls Inter from Google Fonts: strip both so the consumer owns them |
+| 2 | `style.css`, playground rendering every component | Playground looks right in light and dark. **Done 2026-10-31:** `dist/style.css` is generated from `src/style.css` (Tailwind and Google Fonts imports stripped, `@source` added); the playground renders shadcn-vue's own examples, vendored by `scripts/examples.ts` (94 demos, 62 components; 6 newer ones have no upstream examples yet) |
 | 3 | Changesets, GitHub Actions (typecheck, build, publish on release), publish `0.1.0` | `pnpm add chassis-ui` works in a fresh Vite app |
 | 4 | Migrate homelab-dashboard | Its `components/ui` is gone and the dashboard renders identically |
 | 5 | wolfpack starts on it; calorie-tracker adopts it gradually | |
@@ -81,7 +80,7 @@ import { Card, CardContent, CardHeader } from 'chassis-ui/card'
 - **Tailwind v4 everywhere.** The `@theme` and `@source` setup assumes it. True for all consumers today.
 - **Shared blast radius.** A breaking change hits every project. Mitigated by versioned releases and pinning, never `latest`.
 - **Upstream churn.** shadcn-vue renames or restructures components occasionally. `pnpm sync` makes that a diff to review, and a major version bump when exports change.
-- **Tailwind class scanning.** If a project forgets the `@source` line, components render unstyled with no error. The README's setup section leads with it.
+- ~~**Tailwind class scanning.** If a project forgets the `@source` line, components render unstyled with no error.~~ Solved in phase 2: `chassis-ui/style.css` carries its own `@source`, so importing it is enough. It excludes the `.map` files, whose escaped source otherwise produces broken selectors.
 
 ## Open questions
 

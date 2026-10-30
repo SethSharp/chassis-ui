@@ -1,0 +1,30 @@
+/* src/style.css already imports Tailwind; dist/style.css is the stripped version projects get */
+@import '../src/style.css';
+
+@source '../src';
+@source './';
+
+/* "Brand tokens" toggle: a project overriding tokens on top of chassis-ui/style.css */
+html[data-brand] {
+  --primary: oklch(0.55 0.2 260);
+  --primary-foreground: oklch(0.98 0 0);
+  --ring: oklch(0.55 0.2 260);
+  --radius: 1rem;
+}
+
+html.dark[data-brand] {
+  --primary: oklch(0.7 0.16 260);
+  --primary-foreground: oklch(0.15 0 0);
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+/* The sidebar is position: fixed and expects a whole page. Make each demo box its
+   containing block, so it renders inside the box instead of over the playground nav. */
+main[data-component='sidebar'] [data-slot='example-content'] {
+  transform: translateZ(0);
+  overflow: hidden;
+  min-height: 28rem;
+}

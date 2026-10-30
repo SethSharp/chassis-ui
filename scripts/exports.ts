@@ -12,6 +12,7 @@ for (const name of Object.keys(entries())) {
     import: `./dist/${name}.js`,
   }
 }
+exports['./style.css'] = './dist/style.css'
 exports['./package.json'] = './package.json'
 
 pkg.exports = exports

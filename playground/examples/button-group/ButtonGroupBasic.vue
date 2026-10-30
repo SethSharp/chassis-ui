@@ -1,0 +1,20 @@
+<script setup lang="ts">
+import { Button } from "chassis-ui/button"
+import { ButtonGroup } from "chassis-ui/button-group"
+import { Example } from "@playground/examples/_shared/example"
+</script>
+
+<template>
+  <Example title="Basic">
+    <div class="flex flex-col gap-4">
+      <ButtonGroup>
+        <Button variant="outline">
+          Button
+        </Button>
+        <Button variant="outline">
+          Another Button
+        </Button>
+      </ButtonGroup>
+    </div>
+  </Example>
+</template>
