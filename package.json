@@ -43,7 +43,7 @@
     "embla-carousel": "^8.6.0",
     "embla-carousel-vue": "^8.6.0",
     "shiki": "^4.5.0",
-    "tailwindcss": "^4.0.0",
+    "tailwindcss": "^4.1.0",
     "vee-validate": "^4.15.1",
     "vue": "^3.5.0",
     "vue-input-otp": "^0.4.0",
@@ -83,9 +83,11 @@
     }
   },
   "scripts": {
+    "dev": "vite --config playground/vite.config.ts",
     "build": "vite build",
     "typecheck": "vue-tsc --noEmit",
     "exports": "tsx scripts/exports.ts",
+    "examples": "tsx scripts/examples.ts",
     "sync": "tsx scripts/sync.ts"
   },
   "files": [
@@ -371,6 +373,7 @@
       "types": "./dist/trace/index.d.ts",
       "import": "./dist/trace.js"
     },
+    "./style.css": "./dist/style.css",
     "./package.json": "./package.json"
   }
 }
