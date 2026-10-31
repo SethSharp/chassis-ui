@@ -1,6 +1,6 @@
 {
   "name": "chassis-ui",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Shared, fully typed Vue component library built on shadcn-vue",
   "keywords": [
     "vue",
