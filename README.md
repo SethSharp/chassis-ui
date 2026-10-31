@@ -6,8 +6,8 @@ npm package, so projects stop running `shadcn-vue add` one component at a time.
 
 The reasoning and roadmap live in [PLAN.md](PLAN.md).
 
-> **Status:** early. The library builds and has a playground, but it isn't published
-> to npm yet. That arrives in phase 3.
+> **Status:** early. The library builds, has a playground and is ready to publish,
+> but `0.1.0` isn't on npm yet.
 
 ## Getting started
 
@@ -95,6 +95,9 @@ loads.
 
 ### Components with extra requirements
 
+`chassis-ui/style.css` uses `@source not`, so projects need Tailwind 4.1 or newer.
+
+
 | Component | Needs |
 |---|---|
 | `tooltip` | Wrap your app in `<TooltipProvider>` once |
@@ -113,6 +116,8 @@ These are optional so a project using `Button` never installs a charting library
 |---|---|
 | `pnpm dev` | Runs the playground |
 | `pnpm build` | Builds the library into `dist/`, with type declarations and `style.css` |
+| `pnpm smoke` | Installs the built package into a fresh Vite app and checks it typechecks, builds and styles correctly (run `pnpm build` first) |
+| `pnpm changeset` | Records a change for the next release |
 | `pnpm typecheck` | Type-checks everything without building |
 | `pnpm sync` | Pulls the latest components and examples from shadcn-vue, then regenerates the exports |
 | `pnpm exports` | Regenerates the `exports` map in `package.json` from the component folders |
@@ -148,6 +153,51 @@ scripts/
   occasionally breaking changes, come in.
 - **Don't hand-edit the `exports` field** in `package.json`. Run `pnpm exports`
   instead (the build and sync scripts already do).
+
+## Releasing
+
+Releases are driven by [Changesets](https://github.com/changesets/changesets) and
+published from GitHub Actions. Nobody publishes from their own machine, apart from the
+very first release (below).
+
+1. **In your pull request, add a changeset** for anything that changes what ships:
+
+   ```sh
+   pnpm changeset
+   ```
+
+   Patch for fixes, minor for new components or features, major for anything that
+   breaks an import or a prop. The one-line summary becomes the changelog entry.
+
+2. **Merge the pull request.** The release workflow opens (or updates) a
+   "Version Packages" pull request that bumps the version and writes `CHANGELOG.md`.
+
+3. **Merge "Version Packages" when you want to release.** The workflow builds, runs
+   the smoke test, publishes to npm with provenance and creates the GitHub release.
+
+Publishing uses npm trusted publishing: GitHub Actions proves who it is to npm
+directly, so there's no npm token stored anywhere.
+
+Projects pin a version and upgrade deliberately, so a bad release never reaches
+every app at once.
+
+### The first release (one-off)
+
+npm only lets you set up trusted publishing on a package that already exists, so
+`0.1.0` is published by hand, from an up-to-date `main` after the first
+"Version Packages" pull request is merged:
+
+```sh
+git switch main && git pull
+pnpm install
+pnpm build && pnpm smoke
+npm login
+npm publish --access public
+```
+
+Then, on npmjs.com, open the package's **Settings** and add a trusted publisher:
+GitHub Actions, repository `SethSharp/chassis-ui`, workflow `release.yml`. Every
+release after that goes through CI.
 
 ## Troubleshooting
 
