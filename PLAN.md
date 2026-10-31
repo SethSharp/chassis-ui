@@ -62,6 +62,8 @@ import { Card, CardContent, CardHeader } from 'chassis-ui/card'
 | **TypeScript 6, not 7** | TS 7 (native) has no JS compiler API, which `vue-tsc` and `vite-plugin-dts` need. Revisit when the Vue tooling supports it |
 | **Public npm, unscoped `chassis-ui`** | No auth tokens in every consumer, CI and Coolify build. Name confirmed free 2026-10-21 |
 | **Changesets for releases** | Projects pin a version and upgrade deliberately; one bad change can't break every app at once |
+| **Publish with npm trusted publishing, from CI only** | No npm token stored anywhere, and every release gets a provenance attestation. `changesets/action` only opens the Version PR; `npm publish` itself publishes, because npm supports trusted publishing natively. The first release is manual, since npm needs the package to exist before a trusted publisher can be added |
+| **Smoke test before every publish** | `pnpm smoke` installs the packed tarball into a fresh Vite app with only the two CSS imports, then checks typecheck, build, generated classes and runtime resolution. Runs in CI on every PR and again right before publishing |
 | **pnpm** | Matches wolfpack and calorie-tracker |
 | **Style `reka-nova`, base colour `neutral`, font Inter** | Matches the dashboard, so the pilot migration changes nothing visually. Font is a token (`--font-sans`), so projects can override it |
 
@@ -71,7 +73,7 @@ import { Card, CardContent, CardHeader } from 'chassis-ui/card'
 |---|---|---|
 | 1 | Scaffold: pnpm, Vite library mode, `shadcn-vue init` (dashboard's style), `add --all`, `exports.ts` | `pnpm build` produces a typed `dist/` with one entry per component. **Done 2026-10-24** (68 components + `utils`) |
 | 2 | `style.css`, playground rendering every component | Playground looks right in light and dark. **Done 2026-10-31:** `dist/style.css` is generated from `src/style.css` (Tailwind and Google Fonts imports stripped, `@source` added); the playground renders shadcn-vue's own examples, vendored by `scripts/examples.ts` (94 demos, 62 components; 6 newer ones have no upstream examples yet) |
-| 3 | Changesets, GitHub Actions (typecheck, build, publish on release), publish `0.1.0` | `pnpm add chassis-ui` works in a fresh Vite app |
+| 3 | Changesets, GitHub Actions (typecheck, build, publish on release), publish `0.1.0` | `pnpm add chassis-ui` works in a fresh Vite app. Tooling built 2026-10-31 (CI, release workflow, smoke test); `0.1.0` waits on the first manual publish |
 | 4 | Migrate homelab-dashboard | Its `components/ui` is gone and the dashboard renders identically |
 | 5 | wolfpack starts on it; calorie-tracker adopts it gradually | |
 

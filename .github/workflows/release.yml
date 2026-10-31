@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write # push the version commit, tags and GitHub releases
+  pull-requests: write # open the "Version Packages" pull request
+  id-token: write # npm trusted publishing, so no npm token is stored anywhere
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - run: pnpm install --frozen-lockfile
+
+      # With pending changesets this opens or updates the "Version Packages" pull
+      # request. Publishing is done below with npm itself, which supports trusted
+      # publishing natively.
+      - name: Version pull request
+        id: changesets
+        uses: changesets/action@v2
+
+      - name: Publish to npm
+        if: steps.changesets.outputs.has-changesets == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+
+          if ! npm view chassis-ui name > /dev/null 2>&1; then
+            echo "::notice::chassis-ui isn't on npm yet. The first release is published by hand: see Releasing in the README."
+            exit 0
+          fi
+
+          if [ -n "$(npm view "chassis-ui@$VERSION" version 2> /dev/null)" ]; then
+            echo "chassis-ui@$VERSION is already on npm, nothing to publish."
+            exit 0
+          fi
+
+          # Trusted publishing needs npm 11.5.1 or newer
+          npm install -g npm@latest
+
+          pnpm build
+          pnpm smoke
+          npm publish --provenance --access public
+
+          # This version's section of the changelog becomes the release notes
+          awk -v v="## $VERSION" '$0 == v { found = 1; next } found && /^## / { exit } found' CHANGELOG.md > notes.md
+          gh release create "v$VERSION" --target "$GITHUB_SHA" --title "v$VERSION" --notes-file notes.md
